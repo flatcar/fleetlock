@@ -1,5 +1,7 @@
 ## Fleetlock client
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/flatcar-linux/fleetlock.svg)](https://pkg.go.dev/github.com/flatcar-linux/fleetlock)
+
 Go implementation of `FleetLock` protocol.
 
 ### Example
