@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  airlock:
+    image: quay.io/coreos/airlock:main
+    command: airlock serve -vv
+    ports:
+      - "3333:3333"
+    volumes:
+      - "./:/etc/airlock/"
+  etcd:
+    container_name: etcd
+    image: quay.io/coreos/etcd
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd
+      - -advertise-client-urls
+      - http://etcd:2379,http://etcd:4001 
+      - -listen-client-urls
+      - http://0.0.0.0:2379,http://0.0.0.0:4001 
+      - -initial-advertise-peer-urls
+      - http://etcd:2380 
+      - -listen-peer-urls
+      - http://0.0.0.0:2380 
+      - -initial-cluster-token
+      - etcd-cluster-1 
+      - -initial-cluster
+      - etcd=http://etcd:2380 
+      - -initial-cluster-state
+      - new
