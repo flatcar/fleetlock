@@ -1,13 +1,13 @@
 # Status service configuration
 [status]
 enabled = true
-address = "127.0.0.1"
+address = "0.0.0.0"
 port = 2222
 tls = false
 
 # Main service configuration
 [service]
-address = "127.0.0.1"
+address = "0.0.0.0"
 port = 3333
 tls = false
 
