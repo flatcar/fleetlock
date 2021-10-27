@@ -144,8 +144,24 @@ func New(cfg *Config) (*Client, error) {
 		id:            cfg.ID,
 	}
 
+	if fleetlock.id == "" {
+		return nil, fmt.Errorf("ID is required")
+	}
+
+	if fleetlock.baseServerURL == "" {
+		return nil, fmt.Errorf("URL is required")
+	}
+
 	if _, err := url.ParseRequestURI(fleetlock.baseServerURL); err != nil {
 		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	if fleetlock.group == "" {
+		fleetlock.group = "default"
+	}
+
+	if fleetlock.http == nil {
+		fleetlock.http = http.DefaultClient
 	}
 
 	return fleetlock, nil
