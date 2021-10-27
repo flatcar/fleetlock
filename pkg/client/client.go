@@ -10,13 +10,6 @@ import (
 	"net/url"
 )
 
-// HTTPClient interface holds the required Post method
-// to send FleetLock requests.
-type HTTPClient interface {
-	// Do send a `body` payload to the URL.
-	Do(*http.Request) (*http.Response, error)
-}
-
 // Payload is the content to send
 // to the FleetLock server.
 type Payload struct {
@@ -40,7 +33,7 @@ type Client struct {
 	URL   string
 	group string
 	id    string
-	http  HTTPClient
+	http  *http.Client
 }
 
 func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
@@ -129,7 +122,7 @@ func (c *Client) UnlockIfHeld() error {
 }
 
 // New builds a Fleet-Lock client.
-func New(URL, group, ID string, c HTTPClient) (*Client, error) {
+func New(URL, group, ID string, c *http.Client) (*Client, error) {
 	if _, err := url.ParseRequestURI(URL); err != nil {
 		return nil, fmt.Errorf("parsing URL: %w", err)
 	}
