@@ -2,6 +2,9 @@
 package cmd
 
 import (
+	"fmt"
+	"io/ioutil"
+
 	"github.com/spf13/cobra"
 )
 
@@ -19,4 +22,17 @@ func Command() *cobra.Command {
 	cli.AddCommand(unlock(&group, &id, &url))
 
 	return cli
+}
+
+// machineID is a helper to return unique ID
+// of the machine.
+func machineID() (*string, error) {
+	id, err := ioutil.ReadFile("/etc/machine-id")
+	if err != nil {
+		return nil, fmt.Errorf("reading machine ID from file: %w", err)
+	}
+
+	sid := string(id)
+
+	return &sid, nil
 }

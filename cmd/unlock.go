@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -15,13 +14,18 @@ func unlock(group, id, url *string) *cobra.Command {
 		Use:   "unlock-if-held",
 		Short: "Try to release (unlock) a slot that it was previously holding",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			httpClient := http.DefaultClient
+			if id == nil {
+				var err error
+				id, err = machineID()
+				if err != nil {
+					return fmt.Errorf("getting machine ID: %w", err)
+				}
+			}
 
 			c, err := client.New(&client.Config{
-				URL:   *url,
-				Group: *group,
 				ID:    *id,
-				HTTP:  httpClient,
+				Group: *group,
+				URL:   *url,
 			})
 			if err != nil {
 				return fmt.Errorf("building the client: %w", err)
