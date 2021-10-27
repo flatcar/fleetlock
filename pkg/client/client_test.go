@@ -11,15 +11,15 @@ import (
 	"github.com/flatcar-linux/fleetlock/pkg/client"
 )
 
-type httpClient struct {
+type mockRoundTripper struct {
 	resp  *http.Response
 	r     *http.Request
 	doErr error
 }
 
-func (h *httpClient) Do(req *http.Request) (*http.Response, error) {
-	h.r = req
-	return h.resp, h.doErr
+func (r *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	r.r = req
+	return r.resp, r.doErr
 }
 
 func TestBadURL(t *testing.T) {
@@ -61,17 +61,20 @@ func TestRecursiveLock(t *testing.T) {
 			expErr:     errors.New("unexpected status code: 100"),
 		},
 		{
-			expErr: errors.New("doing the request: connection refused"),
+			expErr: errors.New("doing the request: Post \"http://1.2.3.4/v1/pre-reboot\": connection refused"),
 			doErr:  errors.New("connection refused"),
 		},
 	} {
-		h := &httpClient{
+		h := http.DefaultClient
+		tr := &mockRoundTripper{
 			resp: &http.Response{
 				StatusCode: test.statusCode,
 				Body:       test.body,
 			},
 			doErr: test.doErr,
 		}
+
+		h.Transport = tr
 
 		c, _ := client.New("http://1.2.3.4", "default", "1234", h)
 
@@ -80,8 +83,8 @@ func TestRecursiveLock(t *testing.T) {
 			t.Fatalf("should have %v for err, got: %v", test.expErr, err)
 		}
 
-		if h.r.URL.String() != expURL {
-			t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
+		if tr.r.URL.String() != expURL {
+			t.Fatalf("should have %s for URL, got: %s", expURL, tr.r.URL.String())
 		}
 	}
 }
@@ -114,17 +117,20 @@ func TestUnlockIfHeld(t *testing.T) {
 			expErr:     errors.New("unexpected status code: 100"),
 		},
 		{
-			expErr: errors.New("doing the request: connection refused"),
+			expErr: errors.New("doing the request: Post \"http://1.2.3.4/v1/steady-state\": connection refused"),
 			doErr:  errors.New("connection refused"),
 		},
 	} {
-		h := &httpClient{
+		h := http.DefaultClient
+		tr := &mockRoundTripper{
 			resp: &http.Response{
 				StatusCode: test.statusCode,
 				Body:       test.body,
 			},
 			doErr: test.doErr,
 		}
+
+		h.Transport = tr
 
 		c, _ := client.New("http://1.2.3.4", "default", "1234", h)
 
@@ -133,8 +139,8 @@ func TestUnlockIfHeld(t *testing.T) {
 			t.Fatalf("should have %v for err, got: %v", test.expErr, err)
 		}
 
-		if h.r.URL.String() != expURL {
-			t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
+		if tr.r.URL.String() != expURL {
+			t.Fatalf("should have %s for URL, got: %s", expURL, tr.r.URL.String())
 		}
 	}
 }
