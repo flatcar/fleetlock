@@ -35,12 +35,12 @@ type ClientParams struct {
 }
 
 // Client holds the params related to the host
-// in order to interact with the Fleet-Lock URL.
+// in order to interact with the Fleet-Lock server URL.
 type Client struct {
-	URL   string
-	group string
-	id    string
-	http  HTTPClient
+	baseServerURL string
+	group         string
+	id            string
+	http          HTTPClient
 }
 
 func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
@@ -57,7 +57,7 @@ func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 	}
 
 	j := bytes.NewReader(body)
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.URL, endpoint), j)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.baseServerURL, endpoint), j)
 	if err != nil {
 		return nil, fmt.Errorf("building request: %w", err)
 	}
@@ -129,15 +129,15 @@ func (c *Client) UnlockIfHeld() error {
 }
 
 // New builds a Fleet-Lock client.
-func New(URL, group, ID string, c HTTPClient) (*Client, error) {
-	if _, err := url.ParseRequestURI(URL); err != nil {
+func New(baseServerURL, group, ID string, c HTTPClient) (*Client, error) {
+	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
 		return nil, fmt.Errorf("parsing URL: %w", err)
 	}
 
 	return &Client{
-		URL:   URL,
-		http:  c,
-		group: group,
-		id:    ID,
+		baseServerURL: baseServerURL,
+		http:          c,
+		group:         group,
+		id:            ID,
 	}, nil
 }
