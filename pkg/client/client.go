@@ -87,7 +87,7 @@ func handleResponse(resp *http.Response) error {
 
 		e := &Error{}
 		if err := json.Unmarshal(body, &e); err != nil {
-			return fmt.Errorf("unmarshalling error: %v", err)
+			return fmt.Errorf("unmarshalling error: %w", err)
 		}
 
 		return fmt.Errorf("fleetlock error: %s", e.String())
