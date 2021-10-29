@@ -34,7 +34,6 @@ func TestBadURL(t *testing.T) {
 }
 
 func TestRecursiveLock(t *testing.T) {
-
 	expURL := "http://1.2.3.4/v1/pre-reboot"
 
 	for _, test := range []struct {
@@ -87,7 +86,6 @@ func TestRecursiveLock(t *testing.T) {
 }
 
 func TestUnlockIfHeld(t *testing.T) {
-
 	expURL := "http://1.2.3.4/v1/steady-state"
 
 	for _, test := range []struct {
