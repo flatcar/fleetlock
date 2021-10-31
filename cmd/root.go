@@ -1,3 +1,4 @@
+// Package cmd implements fleetlockctl CLI.
 package cmd
 
 import (

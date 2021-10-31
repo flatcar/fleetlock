@@ -1,3 +1,4 @@
+// Package client implements FleetLock client.
 package client
 
 import (
