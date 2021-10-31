@@ -42,8 +42,8 @@ linters:
     - forcetypeassert
     - funlen
     - gci
-    #- gochecknoglobals
-    #- gochecknoinits
+    - gochecknoglobals
+    - gochecknoinits
     - gocognit
     - goconst
     - gocritic
