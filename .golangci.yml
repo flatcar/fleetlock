@@ -22,8 +22,6 @@ linters:
     - goerr113
     # We do not require all used structs to have all fields initialized.
     - exhaustivestruct
-    # Temporarily disable reporting linters.
-    - errcheck
     # This linters has been deprecated.
     - interfacer
     - maligned
@@ -37,7 +35,6 @@ linters:
     - dogsled
     - dupl
     - durationcheck
-    #- errcheck
     - errname
     - errorlint
     - exhaustive
