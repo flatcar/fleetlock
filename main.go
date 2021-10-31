@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	if err := cmd.Root.Execute(); err != nil {
+	if err := cmd.Command().Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "unable to execute command: %v", err)
 	}
 }
