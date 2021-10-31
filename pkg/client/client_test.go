@@ -30,8 +30,9 @@ func TestBadURL(t *testing.T) {
 		t.Fatalf("should get an error")
 	}
 
-	if err != nil && err.Error() != "parsing URL: parse \"this is not an URL\": invalid URI for request" {
-		t.Fatalf("should have %s for the error, got: %s", "parsing URL: parse \"this is not an URL\": invalid URI for request", err.Error())
+	expectedError := "parsing URL: parse \"this is not an URL\": invalid URI for request"
+	if err != nil && err.Error() != expectedError {
+		t.Fatalf("should have %s for the error, got: %s", expectedError, err.Error())
 	}
 }
 
