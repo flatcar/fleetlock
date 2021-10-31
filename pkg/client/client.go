@@ -77,12 +77,12 @@ func (c *Client) generateRequest(ctx context.Context, endpoint string) (*http.Re
 }
 
 func handleResponse(resp *http.Response) error {
-	statusType := resp.StatusCode / 100
+	maxHTTPErrorCode := 600
 
-	switch statusType {
-	case 2:
+	switch code := resp.StatusCode; {
+	case code >= 200 && code < 300:
 		return nil
-	case 3, 4, 5:
+	case code >= 300 && code < maxHTTPErrorCode:
 		// We try to extract an eventual error.
 		r := bufio.NewReader(resp.Body)
 
