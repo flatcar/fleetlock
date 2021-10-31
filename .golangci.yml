@@ -69,7 +69,7 @@ linters:
     #- nlreturn
     #- noctx
     - nolintlint
-    #- paralleltest
+    - paralleltest
     - prealloc
     - predeclared
     - promlinter
