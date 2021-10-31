@@ -89,7 +89,7 @@ linters:
     - nestif
     - nilerr
     - nlreturn
-    #- noctx
+    - noctx
     - nolintlint
     - paralleltest
     - prealloc
