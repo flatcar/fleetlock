@@ -129,7 +129,7 @@ func (c *Client) UnlockIfHeld() error {
 }
 
 // New builds a Fleet-Lock client.
-func New(baseServerURL, group, ID string, c HTTPClient) (*Client, error) {
+func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
 	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
 		return nil, fmt.Errorf("parsing URL: %w", err)
 	}
@@ -138,6 +138,6 @@ func New(baseServerURL, group, ID string, c HTTPClient) (*Client, error) {
 		baseServerURL: baseServerURL,
 		http:          c,
 		group:         group,
-		id:            ID,
+		id:            id,
 	}, nil
 }
