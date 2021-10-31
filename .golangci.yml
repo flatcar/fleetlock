@@ -60,7 +60,7 @@ linters:
     - ifshort
     - importas
     - ineffassign
-    #- lll
+    - lll
     - makezero
     - misspell
     - nakedret
