@@ -79,7 +79,7 @@ linters:
     - sqlclosecheck
     - structcheck
     - stylecheck
-    #- tagliatelle
+    - tagliatelle
     - testpackage
     - thelper
     - tparallel
