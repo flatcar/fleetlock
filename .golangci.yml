@@ -12,8 +12,28 @@ issues:
       text: "does not use range value in test Run"
 
 linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
   gci:
     local-prefixes: github.com/flatcar-linux/fleetlock
+  godot:
+    capital: true
+  gofumpt:
+    extra-rules: true
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+      - shadow
+  makezero:
+    always: true
+  nolintlint:
+    allow-leading-space: false
+    require-explanation: true
+    require-specific: true
+  wsl:
+    force-err-cuddling: true
 
 linters:
   disable-all: false
