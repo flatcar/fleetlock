@@ -55,6 +55,7 @@ linters:
     - dogsled
     - dupl
     - durationcheck
+    - errcheck
     - errname
     - errorlint
     - exhaustive
@@ -70,6 +71,7 @@ linters:
     - gocritic
     - gocyclo
     - godot
+    - godox
     - gofmt
     - gofumpt
     - goheader
@@ -78,7 +80,6 @@ linters:
     - gomoddirectives
     - gomodguard
     - goprintffuncname
-    - govet
     - ifshort
     - importas
     - ineffassign
