@@ -29,7 +29,7 @@ type Payload struct {
 // ClientParams is the object holding the
 // ID and the group for each client.
 type ClientParams struct {
-	// ID is the client identifer. (e.g node name or UUID)
+	// ID is the client identifier. (e.g node name or UUID)
 	ID string `json:"id"`
 	// Group is the reboot-group of the client.
 	Group string `json:"group"`
