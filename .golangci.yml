@@ -78,7 +78,7 @@ linters:
     - scopelint
     - sqlclosecheck
     - structcheck
-    #- stylecheck
+    - stylecheck
     #- tagliatelle
     - testpackage
     - thelper
