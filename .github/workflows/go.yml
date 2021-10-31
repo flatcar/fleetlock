@@ -25,8 +25,12 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    container: golangci/golangci-lint:v1.42
     steps:
       - uses: actions/checkout@v2
+
+      - name: Check linters are up to date
+        run: make test-update-linters
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
