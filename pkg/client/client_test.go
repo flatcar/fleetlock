@@ -19,6 +19,7 @@ type httpClient struct {
 
 func (h *httpClient) Do(req *http.Request) (*http.Response, error) {
 	h.r = req
+
 	return h.resp, h.doErr
 }
 
