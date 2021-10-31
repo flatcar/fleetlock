@@ -99,8 +99,6 @@ func handleResponse(resp *http.Response) error {
 	default:
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-
-	return nil
 }
 
 // RecursiveLock tries to reserve (lock) a slot for rebooting.
