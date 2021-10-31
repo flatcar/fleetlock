@@ -1,5 +1,6 @@
 GOLANGCILINT := go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
 
+.PHONY: build
 build:
 	@go build -o ./fleetlockctl main.go
 
