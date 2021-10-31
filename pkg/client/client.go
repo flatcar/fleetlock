@@ -57,6 +57,7 @@ func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 	}
 
 	j := bytes.NewReader(body)
+
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.baseServerURL, endpoint), j)
 	if err != nil {
 		return nil, fmt.Errorf("building request: %w", err)
@@ -78,6 +79,7 @@ func handleResponse(resp *http.Response) error {
 	case 3, 4, 5:
 		// We try to extract an eventual error.
 		r := bufio.NewReader(resp.Body)
+
 		body, err := ioutil.ReadAll(r)
 		if err != nil {
 			return fmt.Errorf("reading body: %w", err)
