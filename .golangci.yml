@@ -24,7 +24,6 @@ linters:
     - exhaustivestruct
     # Temporarily disable reporting linters.
     - errcheck
-    - govet
     # This linters has been deprecated.
     - interfacer
     - maligned
@@ -62,6 +61,7 @@ linters:
     - gomoddirectives
     - gomodguard
     - goprintffuncname
+    - govet
     - ifshort
     - importas
     - ineffassign
