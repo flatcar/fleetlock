@@ -23,6 +23,8 @@ func (h *httpClient) Do(req *http.Request) (*http.Response, error) {
 }
 
 func TestBadURL(t *testing.T) {
+	t.Parallel()
+
 	_, err := client.New("this is not an URL", "default", "1234", nil)
 	if err == nil {
 		t.Fatalf("should get an error")
@@ -34,6 +36,8 @@ func TestBadURL(t *testing.T) {
 }
 
 func TestRecursiveLock(t *testing.T) {
+	t.Parallel()
+
 	expURL := "http://1.2.3.4/v1/pre-reboot"
 
 	for _, test := range []struct {
@@ -86,6 +90,8 @@ func TestRecursiveLock(t *testing.T) {
 }
 
 func TestUnlockIfHeld(t *testing.T) {
+	t.Parallel()
+
 	expURL := "http://1.2.3.4/v1/steady-state"
 
 	for _, test := range []struct {
