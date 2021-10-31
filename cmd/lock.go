@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -20,7 +21,7 @@ func lock(group, id, url *string) *cobra.Command {
 				return fmt.Errorf("building the client: %w", err)
 			}
 
-			if err := c.RecursiveLock(); err != nil {
+			if err := c.RecursiveLock(context.Background()); err != nil {
 				return fmt.Errorf("locking: %w", err)
 			}
 

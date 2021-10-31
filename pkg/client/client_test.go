@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -12,15 +13,14 @@ import (
 )
 
 type httpClient struct {
-	resp  *http.Response
-	r     *http.Request
-	doErr error
+	do func(req *http.Request) (*http.Response, error)
+	r  *http.Request
 }
 
-func (h *httpClient) Do(req *http.Request) (*http.Response, error) {
-	h.r = req
+func (m *httpClient) Do(req *http.Request) (*http.Response, error) {
+	m.r = req
 
-	return h.resp, h.doErr
+	return m.do(req)
 }
 
 func TestBadURL(t *testing.T) {
@@ -40,6 +40,8 @@ func TestBadURL(t *testing.T) {
 //nolint:funlen // Just many test cases.
 func TestClient(t *testing.T) {
 	t.Parallel()
+
+	ctx := context.Background()
 
 	for _, test := range []struct {
 		statusCode int
@@ -73,11 +75,12 @@ func TestClient(t *testing.T) {
 
 		newClient := func(statusCode int, body []byte, doErr error) (*httpClient, *client.Client) {
 			h := &httpClient{
-				resp: &http.Response{
-					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader(body)),
+				do: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: statusCode,
+						Body:       ioutil.NopCloser(bytes.NewReader(body)),
+					}, doErr
 				},
-				doErr: doErr,
 			}
 
 			c, err := client.New("http://1.2.3.4", "default", "1234", h)
@@ -93,7 +96,7 @@ func TestClient(t *testing.T) {
 
 			h, c := newClient(test.statusCode, test.body, test.doErr)
 
-			err := c.UnlockIfHeld()
+			err := c.UnlockIfHeld(ctx)
 			if err != nil && err.Error() != test.expErr.Error() {
 				t.Fatalf("should have %v for err, got: %v", test.expErr, err)
 			}
@@ -110,7 +113,7 @@ func TestClient(t *testing.T) {
 
 			h, c := newClient(test.statusCode, test.body, test.doErr)
 
-			err := c.RecursiveLock()
+			err := c.RecursiveLock(ctx)
 			if err != nil && err.Error() != test.expErr.Error() {
 				t.Fatalf("should have %v for err, got: %v", test.expErr, err)
 			}
@@ -121,5 +124,39 @@ func TestClient(t *testing.T) {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
 			}
 		})
+	}
+}
+
+func Test_Client_use_given_context_for_requests(t *testing.T) {
+	t.Parallel()
+
+	key := struct{}{}
+	value := "bar"
+
+	h := &httpClient{
+		do: func(req *http.Request) (*http.Response, error) {
+			if req.Context().Value(key) == nil {
+				t.Fatalf("Expected request to use given context")
+			}
+
+			return &http.Response{
+				StatusCode: 200,
+			}, nil
+		},
+	}
+
+	c, err := client.New("http://1.2.3.4", "default", "1234", h)
+	if err != nil {
+		t.Fatalf("Unexpected error creating client: %v", err)
+	}
+
+	ctx := context.WithValue(context.Background(), key, value)
+
+	if err := c.RecursiveLock(ctx); err != nil {
+		t.Fatalf("Unexpected error while doing recursive lock: %v", err)
+	}
+
+	if err := c.UnlockIfHeld(ctx); err != nil {
+		t.Fatalf("Unexpected error while unlocking: %v", err)
 	}
 }

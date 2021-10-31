@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -20,7 +21,7 @@ func unlock(group, id, url *string) *cobra.Command {
 				return fmt.Errorf("building the client: %w", err)
 			}
 
-			if err := c.UnlockIfHeld(); err != nil {
+			if err := c.UnlockIfHeld(context.Background()); err != nil {
 				return fmt.Errorf("unlocking: %w", err)
 			}
 

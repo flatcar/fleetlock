@@ -4,6 +4,7 @@ package client
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -46,7 +47,7 @@ type Client struct {
 	http          HTTPClient
 }
 
-func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
+func (c *Client) generateRequest(ctx context.Context, endpoint string) (*http.Request, error) {
 	payload := &Payload{
 		ClientParams: &Params{
 			ID:    c.id,
@@ -61,7 +62,9 @@ func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 
 	j := bytes.NewReader(body)
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.baseServerURL, endpoint), j)
+	targetURL := fmt.Sprintf("%s/%s", c.baseServerURL, endpoint)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, j)
 	if err != nil {
 		return nil, fmt.Errorf("building request: %w", err)
 	}
@@ -103,8 +106,8 @@ func handleResponse(resp *http.Response) error {
 }
 
 // RecursiveLock tries to reserve (lock) a slot for rebooting.
-func (c *Client) RecursiveLock() error {
-	req, err := c.generateRequest("v1/pre-reboot")
+func (c *Client) RecursiveLock(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/pre-reboot")
 	if err != nil {
 		return fmt.Errorf("generating request: %w", err)
 	}
@@ -118,8 +121,8 @@ func (c *Client) RecursiveLock() error {
 }
 
 // UnlockIfHeld tries to release (unlock) a slot that it was previously holding.
-func (c *Client) UnlockIfHeld() error {
-	req, err := c.generateRequest("v1/steady-state")
+func (c *Client) UnlockIfHeld(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/steady-state")
 	if err != nil {
 		return fmt.Errorf("generating request: %w", err)
 	}
