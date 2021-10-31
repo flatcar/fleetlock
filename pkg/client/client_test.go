@@ -80,7 +80,10 @@ func TestClient(t *testing.T) {
 				doErr: doErr,
 			}
 
-			c, _ := client.New("http://1.2.3.4", "default", "1234", h)
+			c, err := client.New("http://1.2.3.4", "default", "1234", h)
+			if err != nil {
+				t.Fatalf("Unexpected error creating client: %v", err)
+			}
 
 			return h, c
 		}
