@@ -35,7 +35,7 @@ type ClientParams struct {
 }
 
 // Client holds the params related to the host
-// in order to interact with the Fleet-Lock server URL.
+// in order to interact with the FleetLock server URL.
 type Client struct {
 	baseServerURL string
 	group         string
@@ -130,7 +130,7 @@ func (c *Client) UnlockIfHeld() error {
 	return handleResponse(resp)
 }
 
-// New builds a Fleet-Lock client.
+// New builds a FleetLock client.
 func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
 	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
 		return nil, fmt.Errorf("parsing URL: %w", err)
