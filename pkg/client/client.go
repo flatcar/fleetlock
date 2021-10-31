@@ -23,6 +23,8 @@ type HTTPClient interface {
 type Payload struct {
 	// ClientParams holds the parameters specific to the
 	// FleetLock client.
+	//
+	//nolint:tagliatelle // FleetLock protocol requires exactly 'client_params' field.
 	ClientParams *Params `json:"client_params"`
 }
 
