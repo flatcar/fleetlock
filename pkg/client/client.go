@@ -25,7 +25,7 @@ type Payload struct {
 	ClientParams *ClientParams `json:"client_params"`
 }
 
-// Client params is the object holding the
+// ClientParams is the object holding the
 // ID and the group for each client.
 type ClientParams struct {
 	// ID is the client identifer. (e.g node name or UUID)
