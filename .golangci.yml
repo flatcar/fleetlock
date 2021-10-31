@@ -46,7 +46,7 @@ linters:
     #- gochecknoinits
     - gocognit
     - goconst
-    #- gocritic
+    - gocritic
     - gocyclo
     #- godot
     - gofmt
