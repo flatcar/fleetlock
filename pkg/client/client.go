@@ -23,12 +23,12 @@ type HTTPClient interface {
 type Payload struct {
 	// ClientParams holds the parameters specific to the
 	// FleetLock client.
-	ClientParams *ClientParams `json:"client_params"`
+	ClientParams *Params `json:"client_params"`
 }
 
-// ClientParams is the object holding the
+// Params is the object holding the
 // ID and the group for each client.
-type ClientParams struct {
+type Params struct {
 	// ID is the client identifier. (e.g node name or UUID)
 	ID string `json:"id"`
 	// Group is the reboot-group of the client.
@@ -46,7 +46,7 @@ type Client struct {
 
 func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 	payload := &Payload{
-		ClientParams: &ClientParams{
+		ClientParams: &Params{
 			ID:    c.id,
 			Group: c.group,
 		},
