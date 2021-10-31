@@ -98,7 +98,7 @@ func handleResponse(resp *http.Response) error {
 	return nil
 }
 
-// RecursiveLock tries to reserve (lock) a slot for rebooting
+// RecursiveLock tries to reserve (lock) a slot for rebooting.
 func (c *Client) RecursiveLock() error {
 	req, err := c.generateRequest("v1/pre-reboot")
 	if err != nil {
@@ -113,7 +113,7 @@ func (c *Client) RecursiveLock() error {
 	return handleResponse(resp)
 }
 
-// UnlockIfHeld tries to release (unlock) a slot that it was previously holding
+// UnlockIfHeld tries to release (unlock) a slot that it was previously holding.
 func (c *Client) UnlockIfHeld() error {
 	req, err := c.generateRequest("v1/steady-state")
 	if err != nil {
