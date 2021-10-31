@@ -88,6 +88,7 @@ func handleResponse(resp *http.Response) error {
 			return fmt.Errorf("reading body: %w", err)
 		}
 
+		//nolint:errcheck // We do it best effort and at least stdlib client never returns error here.
 		resp.Body.Close()
 
 		e := &Error{}
