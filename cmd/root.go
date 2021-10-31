@@ -6,9 +6,10 @@ import (
 )
 
 var (
-	group, id, url string
-
+	// Root implements fleetlockctl.
 	Root = &cobra.Command{Use: "fleetlockctl"}
+
+	group, id, url string
 )
 
 func init() {
