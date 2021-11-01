@@ -36,3 +36,14 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.42
+
+  codespell:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: codespell-project/actions-codespell@master
+      with:
+        skip: .git
+        check_filenames: true
+        check_hidden: true
