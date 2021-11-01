@@ -47,6 +47,50 @@ type Client struct {
 	http          HTTPClient
 }
 
+// New builds a FleetLock client.
+func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
+	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
+		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	return &Client{
+		baseServerURL: baseServerURL,
+		http:          c,
+		group:         group,
+		id:            id,
+	}, nil
+}
+
+// RecursiveLock tries to reserve (lock) a slot for rebooting.
+func (c *Client) RecursiveLock(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/pre-reboot")
+	if err != nil {
+		return fmt.Errorf("generating request: %w", err)
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("doing the request: %w", err)
+	}
+
+	return handleResponse(resp)
+}
+
+// UnlockIfHeld tries to release (unlock) a slot that it was previously holding.
+func (c *Client) UnlockIfHeld(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/steady-state")
+	if err != nil {
+		return fmt.Errorf("generating request: %w", err)
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("doing the request: %w", err)
+	}
+
+	return handleResponse(resp)
+}
+
 func (c *Client) generateRequest(ctx context.Context, endpoint string) (*http.Request, error) {
 	payload := &Payload{
 		ClientParams: &Params{
@@ -103,48 +147,4 @@ func handleResponse(resp *http.Response) error {
 	default:
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-}
-
-// RecursiveLock tries to reserve (lock) a slot for rebooting.
-func (c *Client) RecursiveLock(ctx context.Context) error {
-	req, err := c.generateRequest(ctx, "v1/pre-reboot")
-	if err != nil {
-		return fmt.Errorf("generating request: %w", err)
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return fmt.Errorf("doing the request: %w", err)
-	}
-
-	return handleResponse(resp)
-}
-
-// UnlockIfHeld tries to release (unlock) a slot that it was previously holding.
-func (c *Client) UnlockIfHeld(ctx context.Context) error {
-	req, err := c.generateRequest(ctx, "v1/steady-state")
-	if err != nil {
-		return fmt.Errorf("generating request: %w", err)
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return fmt.Errorf("doing the request: %w", err)
-	}
-
-	return handleResponse(resp)
-}
-
-// New builds a FleetLock client.
-func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
-	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
-		return nil, fmt.Errorf("parsing URL: %w", err)
-	}
-
-	return &Client{
-		baseServerURL: baseServerURL,
-		http:          c,
-		group:         group,
-		id:            id,
-	}, nil
 }
