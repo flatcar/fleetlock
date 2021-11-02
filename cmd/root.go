@@ -12,7 +12,7 @@ func Command() *cobra.Command {
 	var group, id, url string
 
 	cli.PersistentFlags().StringVarP(&group, "group", "g", "default", "FleetLock group")
-	cli.PersistentFlags().StringVarP(&id, "id", "i", "", "FleetLock instance ID (/etc/machine-id for example)")
+	cli.PersistentFlags().StringVarP(&id, "id", "i", "", "FleetLock instance ID (e.g. content of /etc/machine-id file)")
 	cli.PersistentFlags().StringVarP(&url, "url", "u", "", "FleetLock endpoint URL")
 
 	cli.AddCommand(lock(&group, &id, &url))
