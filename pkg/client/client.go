@@ -1,8 +1,10 @@
+// Package client implements FleetLock client.
 package client
 
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -22,30 +24,76 @@ type HTTPClient interface {
 type Payload struct {
 	// ClientParams holds the parameters specific to the
 	// FleetLock client.
-	ClientParams *ClientParams `json:"client_params"`
+	//
+	//nolint:tagliatelle // FleetLock protocol requires exactly 'client_params' field.
+	ClientParams *Params `json:"client_params"`
 }
 
-// Client params is the object holding the
+// Params is the object holding the
 // ID and the group for each client.
-type ClientParams struct {
-	// ID is the client identifer. (e.g node name or UUID)
+type Params struct {
+	// ID is the client identifier. (e.g node name or UUID)
 	ID string `json:"id"`
 	// Group is the reboot-group of the client.
 	Group string `json:"group"`
 }
 
 // Client holds the params related to the host
-// in order to interact with the Fleet-Lock URL.
+// in order to interact with the FleetLock server URL.
 type Client struct {
-	URL   string
-	group string
-	id    string
-	http  HTTPClient
+	baseServerURL string
+	group         string
+	id            string
+	http          HTTPClient
 }
 
-func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
+// New builds a FleetLock client.
+func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
+	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
+		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	return &Client{
+		baseServerURL: baseServerURL,
+		http:          c,
+		group:         group,
+		id:            id,
+	}, nil
+}
+
+// RecursiveLock tries to reserve (lock) a slot for rebooting.
+func (c *Client) RecursiveLock(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/pre-reboot")
+	if err != nil {
+		return fmt.Errorf("generating request: %w", err)
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("doing the request: %w", err)
+	}
+
+	return handleResponse(resp)
+}
+
+// UnlockIfHeld tries to release (unlock) a slot that it was previously holding.
+func (c *Client) UnlockIfHeld(ctx context.Context) error {
+	req, err := c.generateRequest(ctx, "v1/steady-state")
+	if err != nil {
+		return fmt.Errorf("generating request: %w", err)
+	}
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("doing the request: %w", err)
+	}
+
+	return handleResponse(resp)
+}
+
+func (c *Client) generateRequest(ctx context.Context, endpoint string) (*http.Request, error) {
 	payload := &Payload{
-		ClientParams: &ClientParams{
+		ClientParams: &Params{
 			ID:    c.id,
 			Group: c.group,
 		},
@@ -57,7 +105,10 @@ func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 	}
 
 	j := bytes.NewReader(body)
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", c.URL, endpoint), j)
+
+	targetURL := fmt.Sprintf("%s/%s", c.baseServerURL, endpoint)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, j)
 	if err != nil {
 		return nil, fmt.Errorf("building request: %w", err)
 	}
@@ -70,74 +121,30 @@ func (c *Client) generateRequest(endpoint string) (*http.Request, error) {
 }
 
 func handleResponse(resp *http.Response) error {
-	statusType := resp.StatusCode / 100
+	maxHTTPErrorCode := 600
 
-	switch statusType {
-	case 2:
+	switch code := resp.StatusCode; {
+	case code >= 200 && code < 300:
 		return nil
-	case 3, 4, 5:
+	case code >= 300 && code < maxHTTPErrorCode:
 		// We try to extract an eventual error.
 		r := bufio.NewReader(resp.Body)
+
 		body, err := ioutil.ReadAll(r)
 		if err != nil {
 			return fmt.Errorf("reading body: %w", err)
 		}
 
+		//nolint:errcheck // We do it best effort and at least stdlib client never returns error here.
 		resp.Body.Close()
 
 		e := &Error{}
 		if err := json.Unmarshal(body, &e); err != nil {
-			return fmt.Errorf("unmarshalling error: %v", err)
+			return fmt.Errorf("unmarshalling error: %w", err)
 		}
 
 		return fmt.Errorf("fleetlock error: %s", e.String())
 	default:
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-
-	return nil
-}
-
-// RecursiveLock tries to reserve (lock) a slot for rebooting
-func (c *Client) RecursiveLock() error {
-	req, err := c.generateRequest("v1/pre-reboot")
-	if err != nil {
-		return fmt.Errorf("generating request: %w", err)
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return fmt.Errorf("doing the request: %w", err)
-	}
-
-	return handleResponse(resp)
-}
-
-// UnlockIfHeld tries to release (unlock) a slot that it was previously holding
-func (c *Client) UnlockIfHeld() error {
-	req, err := c.generateRequest("v1/steady-state")
-	if err != nil {
-		return fmt.Errorf("generating request: %w", err)
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return fmt.Errorf("doing the request: %w", err)
-	}
-
-	return handleResponse(resp)
-}
-
-// New builds a Fleet-Lock client.
-func New(URL, group, ID string, c HTTPClient) (*Client, error) {
-	if _, err := url.ParseRequestURI(URL); err != nil {
-		return nil, fmt.Errorf("parsing URL: %w", err)
-	}
-
-	return &Client{
-		URL:   URL,
-		http:  c,
-		group: group,
-		id:    ID,
-	}, nil
 }

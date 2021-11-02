@@ -1,20 +1,22 @@
+// Package cmd implements fleetlockctl CLI.
 package cmd
 
 import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	group, id, url string
+// Command returns CLI command to be executed.
+func Command() *cobra.Command {
+	cli := &cobra.Command{Use: "fleetlockctl"}
 
-	Root = &cobra.Command{Use: "fleetlockctl"}
-)
+	var group, id, url string
 
-func init() {
-	Root.PersistentFlags().StringVarP(&group, "group", "g", "default", "Fleet-Lock group")
-	Root.PersistentFlags().StringVarP(&id, "id", "i", "", "Fleet-Lock instance ID (/etc/machine-id for example)")
-	Root.PersistentFlags().StringVarP(&url, "url", "u", "", "Fleet-Lock endpoint URL")
+	cli.PersistentFlags().StringVarP(&group, "group", "g", "default", "FleetLock group")
+	cli.PersistentFlags().StringVarP(&id, "id", "i", "", "FleetLock instance ID (e.g. content of /etc/machine-id file)")
+	cli.PersistentFlags().StringVarP(&url, "url", "u", "", "FleetLock endpoint URL")
 
-	Root.AddCommand(lock)
-	Root.AddCommand(unlock)
+	cli.AddCommand(lock(&group, &id, &url))
+	cli.AddCommand(unlock(&group, &id, &url))
+
+	return cli
 }
