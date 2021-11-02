@@ -12,7 +12,8 @@ import (
 
 func lock(group, id, url *string) *cobra.Command {
 	return &cobra.Command{
-		Use: "recursive-lock",
+		Use:   "recursive-lock",
+		Short: "Try to reserve (lock) a slot for rebooting",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			httpClient := http.DefaultClient
 

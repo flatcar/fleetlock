@@ -12,7 +12,8 @@ import (
 
 func unlock(group, id, url *string) *cobra.Command {
 	return &cobra.Command{
-		Use: "unlock-if-held",
+		Use:   "unlock-if-held",
+		Short: "Try to release (unlock) a slot that it was previously holding",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			httpClient := http.DefaultClient
 
