@@ -47,20 +47,6 @@ type Client struct {
 	http          HTTPClient
 }
 
-// New builds a FleetLock client.
-func New(baseServerURL, group, id string, c HTTPClient) (*Client, error) {
-	if _, err := url.ParseRequestURI(baseServerURL); err != nil {
-		return nil, fmt.Errorf("parsing URL: %w", err)
-	}
-
-	return &Client{
-		baseServerURL: baseServerURL,
-		http:          c,
-		group:         group,
-		id:            id,
-	}, nil
-}
-
 // RecursiveLock tries to reserve (lock) a slot for rebooting.
 func (c *Client) RecursiveLock(ctx context.Context) error {
 	req, err := c.generateRequest(ctx, "v1/pre-reboot")
@@ -147,4 +133,20 @@ func handleResponse(resp *http.Response) error {
 	default:
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
+}
+
+// New builds a FleetLock client.
+func New(cfg *Config) (*Client, error) {
+	fleetlock := &Client{
+		baseServerURL: cfg.URL,
+		http:          cfg.HTTP,
+		group:         cfg.Group,
+		id:            cfg.ID,
+	}
+
+	if _, err := url.ParseRequestURI(fleetlock.baseServerURL); err != nil {
+		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	return fleetlock, nil
 }

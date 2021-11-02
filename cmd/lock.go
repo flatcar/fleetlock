@@ -17,7 +17,12 @@ func lock(group, id, url *string) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			httpClient := http.DefaultClient
 
-			c, err := client.New(*url, *group, *id, httpClient)
+			c, err := client.New(&client.Config{
+				URL:   *url,
+				Group: *group,
+				ID:    *id,
+				HTTP:  httpClient,
+			})
 			if err != nil {
 				return fmt.Errorf("building the client: %w", err)
 			}
