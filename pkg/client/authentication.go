@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
@@ -16,12 +17,23 @@ type basicAuthRoundTripper struct {
 // We return the initial RoundTripper to chain it in the whole process.
 func (b *basicAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if len(req.Header.Get("Authorization")) != 0 {
-		return b.rt.RoundTrip(req)
+		resp, err := b.rt.RoundTrip(req)
+		if err != nil {
+			return nil, fmt.Errorf("inner round trip error: %w", err)
+		}
+
+		return resp, nil
 	}
 
 	req = req.Clone(context.TODO())
 	req.SetBasicAuth(b.username, b.password)
-	return b.rt.RoundTrip(req)
+
+	resp, err := b.rt.RoundTrip(req)
+	if err != nil {
+		return nil, fmt.Errorf("inner round trip error: %w", err)
+	}
+
+	return resp, nil
 }
 
 // NewBasicAuthRoundTripper returns a basicAuthRoundTripper with username and password.

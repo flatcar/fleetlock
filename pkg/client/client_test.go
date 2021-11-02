@@ -24,6 +24,12 @@ func (m *httpClient) Do(req *http.Request) (*http.Response, error) {
 	return m.do(req)
 }
 
+func (m *httpClient) RoundTrip(req *http.Request) (*http.Response, error) {
+	m.r = req
+
+	return m.do(req)
+}
+
 func TestBadURL(t *testing.T) {
 	t.Parallel()
 
@@ -167,6 +173,10 @@ func TestClient(t *testing.T) {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
 			}
 
+			if _, _, ok := h.r.BasicAuth(); ok {
+				t.Fatalf("basic auth should not be set")
+			}
+
 			payload := getPayload(h)
 
 			if payload.ClientParams.Group != test.expCfg.Group {
@@ -188,6 +198,10 @@ func TestClient(t *testing.T) {
 
 			if h.r.URL.String() != expURL {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
+			}
+
+			if _, _, ok := h.r.BasicAuth(); ok {
+				t.Fatalf("basic auth should not be set")
 			}
 
 			payload := getPayload(h)
@@ -237,7 +251,47 @@ func Test_Client_use_given_context_for_requests(t *testing.T) {
 	}
 }
 
+func TestBasicAuth(t *testing.T) {
+	t.Parallel()
+
+	var (
+		username = "flatcar"
+		password = "p4ssw0rd"
+	)
+
+	ctx := context.Background()
+
+	tr := &httpClient{
+		do: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: 200,
+			}, nil
+		},
+	}
+
+	h := http.Client{
+		Transport: client.NewBasicAuthRoundTripper(username, password, tr),
+	}
+
+	c, err := client.New(&client.Config{ID: "1234", HTTP: &h, URL: "http://1.2.3.4"})
+	if err != nil {
+		t.Fatalf("Unexpected error creating client: %v", err)
+	}
+
+	err = c.RecursiveLock(ctx)
+	if err != nil {
+		t.Fatalf("should have nil for err, got: %v", err)
+	}
+
+	u, p, ok := tr.r.BasicAuth()
+	if u != username || p != password || !ok {
+		t.Fatalf("basic auth creds do not match")
+	}
+}
+
 func TestRequiredParameters(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range []struct {
 		cfg *client.Config
 		err error
