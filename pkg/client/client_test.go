@@ -8,10 +8,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/flatcar-linux/fleetlock/pkg/client"
 )
+
+var fleetlockHeaders = http.Header{
+	"Fleet-Lock-Protocol": []string{"true"},
+}
 
 type httpClient struct {
 	do func(req *http.Request) (*http.Response, error)
@@ -173,6 +178,10 @@ func TestClient(t *testing.T) {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
 			}
 
+			if !reflect.DeepEqual(h.r.Header, fleetlockHeaders) {
+				t.Fatalf("should have %v for headers, got: %s", fleetlockHeaders, h.r.Header)
+			}
+
 			payload := getPayload(h)
 
 			if payload.ClientParams.Group != test.expCfg.Group {
@@ -194,6 +203,10 @@ func TestClient(t *testing.T) {
 
 			if h.r.URL.String() != expURL {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
+			}
+
+			if !reflect.DeepEqual(h.r.Header, fleetlockHeaders) {
+				t.Fatalf("should have %v for headers, got: %s", fleetlockHeaders, h.r.Header)
 			}
 
 			payload := getPayload(h)
