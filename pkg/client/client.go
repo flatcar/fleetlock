@@ -47,6 +47,38 @@ type Client struct {
 	http          HTTPClient
 }
 
+// New builds a FleetLock client.
+func New(cfg *Config) (*Client, error) {
+	fleetlock := &Client{
+		baseServerURL: cfg.URL,
+		http:          cfg.HTTP,
+		group:         cfg.Group,
+		id:            cfg.ID,
+	}
+
+	if fleetlock.id == "" {
+		return nil, fmt.Errorf("ID is required")
+	}
+
+	if fleetlock.baseServerURL == "" {
+		return nil, fmt.Errorf("URL is required")
+	}
+
+	if _, err := url.ParseRequestURI(fleetlock.baseServerURL); err != nil {
+		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	if fleetlock.group == "" {
+		fleetlock.group = "default"
+	}
+
+	if fleetlock.http == nil {
+		fleetlock.http = http.DefaultClient
+	}
+
+	return fleetlock, nil
+}
+
 // RecursiveLock tries to reserve (lock) a slot for rebooting.
 func (c *Client) RecursiveLock(ctx context.Context) error {
 	req, err := c.generateRequest(ctx, "v1/pre-reboot")
@@ -133,36 +165,4 @@ func handleResponse(resp *http.Response) error {
 	default:
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-}
-
-// New builds a FleetLock client.
-func New(cfg *Config) (*Client, error) {
-	fleetlock := &Client{
-		baseServerURL: cfg.URL,
-		http:          cfg.HTTP,
-		group:         cfg.Group,
-		id:            cfg.ID,
-	}
-
-	if fleetlock.id == "" {
-		return nil, fmt.Errorf("ID is required")
-	}
-
-	if fleetlock.baseServerURL == "" {
-		return nil, fmt.Errorf("URL is required")
-	}
-
-	if _, err := url.ParseRequestURI(fleetlock.baseServerURL); err != nil {
-		return nil, fmt.Errorf("parsing URL: %w", err)
-	}
-
-	if fleetlock.group == "" {
-		fleetlock.group = "default"
-	}
-
-	if fleetlock.http == nil {
-		fleetlock.http = http.DefaultClient
-	}
-
-	return fleetlock, nil
 }
