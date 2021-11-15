@@ -14,12 +14,8 @@ func lock(group, id, url *string) *cobra.Command {
 		Use:   "recursive-lock",
 		Short: "Try to reserve (lock) a slot for rebooting",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if id == nil {
-				var err error
-				id, err = machineID()
-				if err != nil {
-					return fmt.Errorf("getting machine ID: %w", err)
-				}
+			if err := checkID(id); err != nil {
+				return fmt.Errorf("checking ID: %w", err)
 			}
 
 			c, err := client.New(&client.Config{

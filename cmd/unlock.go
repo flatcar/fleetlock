@@ -14,12 +14,8 @@ func unlock(group, id, url *string) *cobra.Command {
 		Use:   "unlock-if-held",
 		Short: "Try to release (unlock) a slot that it was previously holding",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if id == nil {
-				var err error
-				id, err = machineID()
-				if err != nil {
-					return fmt.Errorf("getting machine ID: %w", err)
-				}
+			if err := checkID(id); err != nil {
+				return fmt.Errorf("checking ID: %w", err)
 			}
 
 			c, err := client.New(&client.Config{
