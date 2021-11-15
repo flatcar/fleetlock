@@ -173,10 +173,6 @@ func TestClient(t *testing.T) {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
 			}
 
-			if _, _, ok := h.r.BasicAuth(); ok {
-				t.Fatalf("basic auth should not be set")
-			}
-
 			payload := getPayload(h)
 
 			if payload.ClientParams.Group != test.expCfg.Group {
@@ -198,10 +194,6 @@ func TestClient(t *testing.T) {
 
 			if h.r.URL.String() != expURL {
 				t.Fatalf("should have %s for URL, got: %s", expURL, h.r.URL.String())
-			}
-
-			if _, _, ok := h.r.BasicAuth(); ok {
-				t.Fatalf("basic auth should not be set")
 			}
 
 			payload := getPayload(h)
