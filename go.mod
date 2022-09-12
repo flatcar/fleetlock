@@ -1,4 +1,4 @@
-module github.com/flatcar-linux/fleetlock
+module github.com/flatcar/fleetlock
 
 go 1.16
 

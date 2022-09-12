@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/flatcar-linux/fleetlock/pkg/client"
+	"github.com/flatcar/fleetlock/pkg/client"
 )
 
 func unlock(group, id, url *string) *cobra.Command {
