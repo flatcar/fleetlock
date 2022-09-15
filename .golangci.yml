@@ -16,7 +16,7 @@ linters-settings:
     check-type-assertions: true
     check-blank: true
   gci:
-    local-prefixes: github.com/flatcar-linux/fleetlock
+    local-prefixes: github.com/flatcar/fleetlock
   godot:
     capital: true
   gofumpt:

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/flatcar-linux/fleetlock/pkg/client"
+	"github.com/flatcar/fleetlock/pkg/client"
 )
 
 type httpClient struct {

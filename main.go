@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/flatcar-linux/fleetlock/cmd"
+	"github.com/flatcar/fleetlock/cmd"
 )
 
 func main() {
